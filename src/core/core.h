@@ -17,6 +17,7 @@
 #include "core/memory.h"
 #include "core/perf_stats.h"
 #include "core/telemetry_session.h"
+#include "../CitraConnect/Server/cc-server.h"
 
 class ARM_Interface;
 
@@ -261,6 +262,9 @@ public:
     /// Gets a const reference to the video dumper backend
     [[nodiscard]] const VideoDumper::Backend& VideoDumper() const;
 
+    /// Gets a reference to the video dumper backend
+    [[nodiscard]] CCServer& CitraConnectManager();
+
     std::unique_ptr<PerfStats> perf_stats;
     FrameLimiter frame_limiter;
 
@@ -347,6 +351,9 @@ private:
 
     /// Video dumper backend
     std::unique_ptr<VideoDumper::Backend> video_dumper;
+
+    // Citra Connect backend
+    std::unique_ptr<CCServer> citra_connect;
 
     /// Custom texture cache system
     std::unique_ptr<Core::CustomTexCache> custom_tex_cache;

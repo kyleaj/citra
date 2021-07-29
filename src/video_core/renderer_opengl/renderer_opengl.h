@@ -13,6 +13,7 @@
 #include "video_core/renderer_opengl/frame_dumper_opengl.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 #include "video_core/renderer_opengl/gl_state.h"
+#include "video_core/renderer_opengl/second_screen_streamer_opengl.h"
 
 namespace Layout {
 struct FramebufferLayout;
@@ -134,6 +135,7 @@ private:
     GLuint attrib_tex_coord;
 
     FrameDumperOpenGL frame_dumper;
+    CitraConnect::SecondScreenStream second_stream;
 };
 
 } // namespace OpenGL

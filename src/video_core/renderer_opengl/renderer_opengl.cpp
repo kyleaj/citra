@@ -226,6 +226,7 @@ public:
     }
 };
 
+
 static const char vertex_shader[] = R"(
 in vec2 vert_position;
 in vec2 vert_tex_coord;
@@ -359,10 +360,12 @@ static std::array<GLfloat, 3 * 2> MakeOrthographicMatrix(const float width, cons
 }
 
 RendererOpenGL::RendererOpenGL(Frontend::EmuWindow& window)
-    : RendererBase{window}, frame_dumper(Core::System::GetInstance().VideoDumper(), window) {
+    : RendererBase{window}, frame_dumper(Core::System::GetInstance().VideoDumper(), window),
+      second_stream(Core::System::GetInstance().CitraConnectManager()){
 
     window.mailbox = std::make_unique<OGLTextureMailbox>();
     frame_dumper.mailbox = std::make_unique<OGLVideoDumpingMailbox>();
+    second_stream.mailbox = std::make_unique<OGLTextureMailbox>();
 }
 
 RendererOpenGL::~RendererOpenGL() = default;
@@ -389,6 +392,10 @@ void RendererOpenGL::SwapBuffers() {
         } catch (const OGLTextureMailboxException& exception) {
             LOG_DEBUG(Render_OpenGL, "Frame dumper exception caught: {}", exception.what());
         }
+    }
+
+    if (second_stream.IsStreaming()) {
+        RenderToMailbox(layout, second_stream.mailbox, true);
     }
 
     m_current_frame++;

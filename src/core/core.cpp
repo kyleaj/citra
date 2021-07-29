@@ -48,6 +48,7 @@
 #include "network/network.h"
 #include "video_core/renderer_base.h"
 #include "video_core/video_core.h"
+#include "../CitraConnect/Server/cc-server.h"
 
 namespace Core {
 
@@ -417,6 +418,8 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
     video_dumper = std::make_unique<VideoDumper::NullBackend>();
 #endif
 
+    citra_connect = std::unique_ptr<CCServer>(new CCServer(0, "Citra", false));
+
     VideoCore::ResultStatus result = VideoCore::Init(emu_window, *memory);
     if (result != VideoCore::ResultStatus::Success) {
         switch (result) {
@@ -490,6 +493,10 @@ const Cheats::CheatEngine& System::CheatEngine() const {
 
 VideoDumper::Backend& System::VideoDumper() {
     return *video_dumper;
+}
+
+CCServer& System::CitraConnectManager() {
+    return *citra_connect;
 }
 
 const VideoDumper::Backend& System::VideoDumper() const {

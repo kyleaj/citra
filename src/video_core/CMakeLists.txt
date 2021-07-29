@@ -54,6 +54,7 @@ add_library(video_core STATIC
     renderer_opengl/post_processing_opengl.h
     renderer_opengl/renderer_opengl.cpp
     renderer_opengl/renderer_opengl.h
+    renderer_opengl/second_screen_streamer_opengl.h
     renderer_opengl/texture_filters/anime4k/anime4k_ultrafast.cpp
     renderer_opengl/texture_filters/anime4k/anime4k_ultrafast.h
     renderer_opengl/texture_filters/bicubic/bicubic.cpp
@@ -141,7 +142,7 @@ endif()
 
 create_target_directory_groups(video_core)
 
-target_link_libraries(video_core PUBLIC common core)
+target_link_libraries(video_core PUBLIC common core citra_connect)
 target_link_libraries(video_core PRIVATE glad nihstro-headers Boost::serialization)
 
 if (ARCHITECTURE_x86_64)

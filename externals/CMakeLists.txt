@@ -129,3 +129,6 @@ endif()
 
 # lodepng
 add_subdirectory(lodepng)
+
+# CitraConnect
+add_subdirectory(CitraConnect)
