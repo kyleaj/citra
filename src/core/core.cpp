@@ -419,6 +419,7 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
 #endif
 
     citra_connect = std::unique_ptr<CCServer>(new CCServer(0, "Citra", false));
+    citra_connect.get()->startup();
 
     VideoCore::ResultStatus result = VideoCore::Init(emu_window, *memory);
     if (result != VideoCore::ResultStatus::Success) {
