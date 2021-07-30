@@ -37,6 +37,12 @@ public:
     /// Cleans up after video dumping is ended
     virtual void CleanupVideoDumping() = 0;
 
+    /// Starts sending frames for 2nd screen stream
+    virtual void StartCCStream() = 0;
+
+    /// Stops sending frames for 2nd screen stream
+    virtual void CleanupCCStream() = 0;
+
     /// Updates the framebuffer layout of the contained render window handle.
     void UpdateCurrentFramebufferLayout();
 

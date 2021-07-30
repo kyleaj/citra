@@ -82,6 +82,12 @@ public:
     /// Cleans up after video dumping is ended
     void CleanupVideoDumping() override;
 
+    /// Starts sending frames for 2nd screen stream
+    void StartCCStream() override;
+
+    /// Stops sending frames for 2nd screen stream
+    void CleanupCCStream() override;
+
 private:
     void InitOpenGLObjects();
     void ReloadSampler();

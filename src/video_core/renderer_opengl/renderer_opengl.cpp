@@ -361,7 +361,7 @@ static std::array<GLfloat, 3 * 2> MakeOrthographicMatrix(const float width, cons
 
 RendererOpenGL::RendererOpenGL(Frontend::EmuWindow& window)
     : RendererBase{window}, frame_dumper(Core::System::GetInstance().VideoDumper(), window),
-      second_stream(Core::System::GetInstance().CitraConnectManager()){
+      second_stream(Core::System::GetInstance().CitraConnectManager(), window){
 
     window.mailbox = std::make_unique<OGLTextureMailbox>();
     frame_dumper.mailbox = std::make_unique<OGLVideoDumpingMailbox>();
@@ -1148,6 +1148,14 @@ void RendererOpenGL::CleanupVideoDumping() {
     mailbox->free_cv.notify_one();
 }
 
+void RendererOpenGL::StartCCStream() {
+    second_stream.StartForwarding();
+}
+
+void RendererOpenGL::CleanupCCStream() {
+    second_stream.StopForwarding();
+}
+
 static const char* GetSource(GLenum source) {
 #define RET(s)                                                                                     \
     case GL_DEBUG_SOURCE_##s:                                                                      \
@@ -1239,10 +1247,14 @@ VideoCore::ResultStatus RendererOpenGL::Init() {
 
     RefreshRasterizerSetting();
 
+    StartCCStream();
+
     return VideoCore::ResultStatus::Success;
 }
 
 /// Shutdown the renderer
-void RendererOpenGL::ShutDown() {}
+void RendererOpenGL::ShutDown() {
+    CleanupCCStream();
+}
 
 } // namespace OpenGL

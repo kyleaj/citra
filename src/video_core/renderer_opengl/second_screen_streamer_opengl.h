@@ -11,6 +11,9 @@
 #include "core/frontend/scope_acquire_context.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 
+#include <thread>
+#include <atomic>
+
 namespace CitraConnect {
 
 /**
@@ -22,6 +25,7 @@ private:
     CCServer* server;
     std::unique_ptr<Frontend::GraphicsContext> context;
     std::atomic_bool stop_requested{false};
+    std::thread present_thread;
 
     // PBOs used to dump frames faster
     std::array<OpenGL::OGLBuffer, 2> pbos;
@@ -42,8 +46,15 @@ public:
         return server->isClientConnected();
     }
 
-    void Stop() {
-        stop_requested = true;
+    void StartForwarding() {
+        if (present_thread.joinable())
+            present_thread.join();
+
+        present_thread = std::thread(&SecondScreenStream::PresentLoop, this);
+    }
+
+    void StopForwarding() {
+        stop_requested.store(true, std::memory_order_relaxed);
     }
 
     Layout::FramebufferLayout GetLayout() {
