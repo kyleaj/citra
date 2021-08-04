@@ -59,6 +59,7 @@ class Backend;
 }
 
 class RendererBase;
+class CCServer;
 
 namespace Core {
 

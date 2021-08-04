@@ -36,7 +36,7 @@ add_library(audio_core STATIC
 create_target_directory_groups(audio_core)
 
 target_link_libraries(audio_core PUBLIC common)
-target_link_libraries(audio_core PRIVATE SoundTouch teakra)
+target_link_libraries(audio_core PRIVATE SoundTouch teakra citraconnect)
 
 if(ENABLE_MF)
     target_sources(audio_core PRIVATE

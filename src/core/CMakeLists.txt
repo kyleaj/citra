@@ -472,7 +472,7 @@ endif()
 
 create_target_directory_groups(core)
 
-target_link_libraries(core PUBLIC common PRIVATE audio_core network video_core)
+target_link_libraries(core PUBLIC common PRIVATE audio_core network video_core citraconnect)
 target_link_libraries(core PUBLIC Boost::boost PRIVATE cryptopp fmt open_source_archives Boost::serialization)
 
 if (ENABLE_WEB_SERVICE)

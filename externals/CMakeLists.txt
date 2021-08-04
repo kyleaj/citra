@@ -131,4 +131,4 @@ endif()
 add_subdirectory(lodepng)
 
 # CitraConnect
-add_subdirectory(CitraConnect)
+add_subdirectory(CitraConnect/Server)
