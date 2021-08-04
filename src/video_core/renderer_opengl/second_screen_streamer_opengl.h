@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../CitraConnect/Server/cc-server.h"
+#include "cc-server.h"
 #include "core/frontend/framebuffer_layout.h"
 #include "core/frontend/emu_window.h"
 #include "core/frontend/emu_window.h"

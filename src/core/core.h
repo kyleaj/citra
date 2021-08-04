@@ -17,7 +17,7 @@
 #include "core/memory.h"
 #include "core/perf_stats.h"
 #include "core/telemetry_session.h"
-#include "../CitraConnect/Server/cc-server.h"
+#include "cc-server.h"
 
 class ARM_Interface;
 
