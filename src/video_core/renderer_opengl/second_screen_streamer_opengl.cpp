@@ -41,6 +41,13 @@ namespace CitraConnect {
     }
 
     void SecondScreenStream::PresentLoop() {
+        LOG_INFO(Render_OpenGL, "In present loop, waiting for connection...");
+        while (!IsStreaming()) {
+            mailbox->TryGetPresentFrame(200);
+        }
+
+        LOG_INFO(Render_OpenGL, "Connected!");
+
         Frontend::ScopeAcquireContext scope{*context};
         InitializeOpenGLObjects();
 
@@ -52,7 +59,6 @@ namespace CitraConnect {
             }
 
             if (frame->color_reloaded) {
-                LOG_DEBUG(Render_OpenGL, "Reloading present frame");
                 mailbox->ReloadPresentFrame(frame, layout.width, layout.height);
             }
             glWaitSync(frame->render_fence, 0, GL_TIMEOUT_IGNORED);

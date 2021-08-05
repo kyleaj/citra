@@ -395,7 +395,7 @@ void RendererOpenGL::SwapBuffers() {
     }
 
     if (second_stream.IsStreaming()) {
-        RenderToMailbox(layout, second_stream.mailbox, true);
+        RenderToMailbox(second_stream.GetLayout(), second_stream.mailbox, true);
     }
 
     m_current_frame++;
