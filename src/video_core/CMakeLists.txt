@@ -54,6 +54,7 @@ add_library(video_core STATIC
     renderer_opengl/post_processing_opengl.h
     renderer_opengl/renderer_opengl.cpp
     renderer_opengl/renderer_opengl.h
+    renderer_opengl/second_screen_streamer_opengl.cpp
     renderer_opengl/second_screen_streamer_opengl.h
     renderer_opengl/texture_filters/anime4k/anime4k_ultrafast.cpp
     renderer_opengl/texture_filters/anime4k/anime4k_ultrafast.h

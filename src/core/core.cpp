@@ -48,7 +48,7 @@
 #include "network/network.h"
 #include "video_core/renderer_base.h"
 #include "video_core/video_core.h"
-#include "../CitraConnect/Server/cc-server.h"
+#include "cc-server.h"
 
 namespace Core {
 
