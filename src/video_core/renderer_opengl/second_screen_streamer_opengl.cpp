@@ -76,9 +76,16 @@ namespace CitraConnect {
             glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[next_pbo].handle);
             GLubyte* pixels =
                 static_cast<GLubyte*>(glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY));
-            VideoDumper::VideoFrame frame_data{layout.width, layout.height, pixels};
-            server->sendFrame(frame_data.data.data(), frame_data.width, frame_data.height,
-                              frame_data.stride);
+            if (pixels == NULL) {
+                LOG_WARNING(Render_OpenGL, "Pixels are null");
+            } else {
+                VideoDumper::VideoFrame frame_data{layout.width, layout.height, pixels};
+                if (!server->sendFrame(frame_data.data.data(), frame_data.width, frame_data.height,
+                                       frame_data.stride)) {
+                    LOG_WARNING(Render_OpenGL, "Send frame failed!");
+                }
+            }
+            
             glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
             glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
