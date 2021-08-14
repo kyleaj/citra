@@ -1,6 +1,8 @@
 add_library(input_common STATIC
     analog_from_button.cpp
     analog_from_button.h
+    citraconnect/ccinput.cpp
+    citraconnect/ccinput.h
     gcadapter/gc_adapter.cpp
     gcadapter/gc_adapter.h
     gcadapter/gc_poller.cpp
@@ -33,6 +35,6 @@ if(SDL2_FOUND)
 endif()
 
 create_target_directory_groups(input_common)
-target_link_libraries(input_common PUBLIC core PRIVATE common ${Boost_LIBRARIES})
+target_link_libraries(input_common PUBLIC core PRIVATE common citraconnect ${Boost_LIBRARIES})
 target_include_directories(input_common PRIVATE ${LIBUSB_INCLUDE_DIR})
 target_link_libraries(input_common PUBLIC ${LIBUSB_LIBRARIES})

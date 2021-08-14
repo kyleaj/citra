@@ -6,6 +6,7 @@
 #include <thread>
 #include "common/param_package.h"
 #include "input_common/analog_from_button.h"
+#include "input_common/citraconnect/ccinput.h"
 #include "input_common/gcadapter/gc_adapter.h"
 #include "input_common/gcadapter/gc_poller.h"
 #include "input_common/keyboard.h"
@@ -15,12 +16,16 @@
 #include "input_common/sdl/sdl_impl.h"
 #include "input_common/touch_from_button.h"
 #include "input_common/udp/udp.h"
+#include "cc-server.h"
+#include <core/core.h>
 
 namespace InputCommon {
 
 std::shared_ptr<GCButtonFactory> gcbuttons;
 std::shared_ptr<GCAnalogFactory> gcanalog;
 std::shared_ptr<GCAdapter::Adapter> gcadapter;
+std::shared_ptr<CCButtonFactory> ccbuttons;
+std::shared_ptr<CCAnalogFactory> ccanalog;
 static std::shared_ptr<Keyboard> keyboard;
 static std::shared_ptr<MotionEmu> motion_emu;
 static std::unique_ptr<CemuhookUDP::State> udp;
@@ -32,12 +37,22 @@ void Init() {
     Input::RegisterFactory<Input::ButtonDevice>("gcpad", gcbuttons);
     gcanalog = std::make_shared<GCAnalogFactory>(gcadapter);
     Input::RegisterFactory<Input::AnalogDevice>("gcpad", gcanalog);
+
+    CCServer* cc = &Core::System::GetInstance().CitraConnectManager();
+    ccbuttons = std::make_shared<CCButtonFactory>(cc);
+    Input::RegisterFactory<Input::ButtonDevice>("ccremote", ccbuttons);
+    ccanalog = std::make_shared<CCAnalogFactory>(cc);
+    Input::RegisterFactory<Input::AnalogDevice>("ccremote", ccanalog);
+
     keyboard = std::make_shared<Keyboard>();
     Input::RegisterFactory<Input::ButtonDevice>("keyboard", keyboard);
+
     Input::RegisterFactory<Input::AnalogDevice>("analog_from_button",
                                                 std::make_shared<AnalogFromButton>());
+
     motion_emu = std::make_shared<MotionEmu>();
     Input::RegisterFactory<Input::MotionDevice>("motion_emu", motion_emu);
+
     Input::RegisterFactory<Input::TouchDevice>("touch_from_button",
                                                std::make_shared<TouchFromButtonFactory>());
 
@@ -101,6 +116,9 @@ Common::ParamPackage GetControllerButtonBinds(const Common::ParamPackage& params
     if (engine == "gcpad") {
         return gcbuttons->GetGcTo3DSMappedButton(params.Get("port", 0), native_button);
     }
+    if (engine == "ccremote") {
+        return ccbuttons->GetButtonMapping(native_button);
+    }
     return {};
 }
 
@@ -113,6 +131,9 @@ Common::ParamPackage GetControllerAnalogBinds(const Common::ParamPackage& params
     }
     if (engine == "gcpad") {
         return gcanalog->GetGcTo3DSMappedAnalog(params.Get("port", 0), native_analog);
+    }
+    if (engine == "ccremote") {
+        return ccanalog->GetAnalogMapping(native_analog);
     }
     return {};
 }
