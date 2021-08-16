@@ -14,6 +14,7 @@
 #include "core/hle/service/ir/ir_rst.h"
 #include "core/movie.h"
 #include "core/settings.h"
+#include <input_common/main.h>
 
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_RST)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_RST)
@@ -52,12 +53,23 @@ struct SharedMem {
 static_assert(sizeof(SharedMem) == 0x98, "SharedMem has wrong size!");
 
 void IR_RST::LoadInputDevices() {
-    zl_button = Input::CreateDevice<Input::ButtonDevice>(
-        Settings::values.current_input_profile.buttons[Settings::NativeButton::ZL]);
-    zr_button = Input::CreateDevice<Input::ButtonDevice>(
-        Settings::values.current_input_profile.buttons[Settings::NativeButton::ZR]);
-    c_stick = Input::CreateDevice<Input::AnalogDevice>(
-        Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CStick]);
+    if (Core::System::GetInstance().CitraConnectManager()->isClientConnected()) {
+        Common::ParamPackage engine = Common::ParamPackage("engine:ccremote");
+        zl_button = Input::CreateDevice<Input::ButtonDevice>(
+            InputCommon::GetControllerButtonBinds(engine, Settings::NativeButton::ZL).Serialize());
+        zr_button = Input::CreateDevice<Input::ButtonDevice>(
+            InputCommon::GetControllerButtonBinds(engine, Settings::NativeButton::ZR).Serialize());
+        c_stick = Input::CreateDevice<Input::AnalogDevice>(
+            InputCommon::GetControllerAnalogBinds(engine, Settings::NativeAnalog::CStick)
+                .Serialize());
+    } else {
+        zl_button = Input::CreateDevice<Input::ButtonDevice>(
+            Settings::values.current_input_profile.buttons[Settings::NativeButton::ZL]);
+        zr_button = Input::CreateDevice<Input::ButtonDevice>(
+            Settings::values.current_input_profile.buttons[Settings::NativeButton::ZR]);
+        c_stick = Input::CreateDevice<Input::AnalogDevice>(
+            Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CStick]);
+    }
 }
 
 void IR_RST::UnloadInputDevices() {

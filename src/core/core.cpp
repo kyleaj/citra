@@ -418,7 +418,7 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window, u32 system_mo
     video_dumper = std::make_unique<VideoDumper::NullBackend>();
 #endif
 
-    citra_connect = std::unique_ptr<CCServer>(new CCServer(0, "Citra", false));
+    citra_connect = std::make_shared<CCServer>(0, "Citra", false);
     citra_connect.get()->startup();
 
     VideoCore::ResultStatus result = VideoCore::Init(emu_window, *memory);
@@ -496,8 +496,8 @@ VideoDumper::Backend& System::VideoDumper() {
     return *video_dumper;
 }
 
-CCServer& System::CitraConnectManager() {
-    return *citra_connect;
+std::shared_ptr<CCServer> System::CitraConnectManager() {
+    return citra_connect;
 }
 
 const VideoDumper::Backend& System::VideoDumper() const {

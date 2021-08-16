@@ -264,7 +264,7 @@ public:
     [[nodiscard]] const VideoDumper::Backend& VideoDumper() const;
 
     /// Gets a reference to the video dumper backend
-    [[nodiscard]] CCServer& CitraConnectManager();
+    [[nodiscard]] std::shared_ptr<CCServer> CitraConnectManager();
 
     std::unique_ptr<PerfStats> perf_stats;
     FrameLimiter frame_limiter;
@@ -354,7 +354,7 @@ private:
     std::unique_ptr<VideoDumper::Backend> video_dumper;
 
     // Citra Connect backend
-    std::unique_ptr<CCServer> citra_connect;
+    std::shared_ptr<CCServer> citra_connect;
 
     /// Custom texture cache system
     std::unique_ptr<Core::CustomTexCache> custom_tex_cache;

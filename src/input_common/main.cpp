@@ -7,6 +7,7 @@
 #include "common/param_package.h"
 #include "input_common/analog_from_button.h"
 #include "input_common/citraconnect/ccinput.h"
+#include "input_common/citraconnect/ccinputadapter.h"
 #include "input_common/gcadapter/gc_adapter.h"
 #include "input_common/gcadapter/gc_poller.h"
 #include "input_common/keyboard.h"
@@ -16,14 +17,13 @@
 #include "input_common/sdl/sdl_impl.h"
 #include "input_common/touch_from_button.h"
 #include "input_common/udp/udp.h"
-#include "cc-server.h"
-#include <core/core.h>
 
 namespace InputCommon {
 
 std::shared_ptr<GCButtonFactory> gcbuttons;
 std::shared_ptr<GCAnalogFactory> gcanalog;
 std::shared_ptr<GCAdapter::Adapter> gcadapter;
+std::shared_ptr<CCInputAdapter> ccadapter;
 std::shared_ptr<CCButtonFactory> ccbuttons;
 std::shared_ptr<CCAnalogFactory> ccanalog;
 static std::shared_ptr<Keyboard> keyboard;
@@ -38,10 +38,10 @@ void Init() {
     gcanalog = std::make_shared<GCAnalogFactory>(gcadapter);
     Input::RegisterFactory<Input::AnalogDevice>("gcpad", gcanalog);
 
-    CCServer* cc = &Core::System::GetInstance().CitraConnectManager();
-    ccbuttons = std::make_shared<CCButtonFactory>(cc);
+    ccadapter = std::make_shared<CCInputAdapter>();
+    ccbuttons = std::make_shared<CCButtonFactory>(ccadapter);
     Input::RegisterFactory<Input::ButtonDevice>("ccremote", ccbuttons);
-    ccanalog = std::make_shared<CCAnalogFactory>(cc);
+    ccanalog = std::make_shared<CCAnalogFactory>(ccadapter);
     Input::RegisterFactory<Input::AnalogDevice>("ccremote", ccanalog);
 
     keyboard = std::make_shared<Keyboard>();

@@ -9,6 +9,7 @@
 #include "core/hle/service/ir/extra_hid.h"
 #include "core/movie.h"
 #include "core/settings.h"
+#include <input_common/main.h>
 
 namespace Service::IR {
 
@@ -261,12 +262,24 @@ void ExtraHID::RequestInputDevicesReload() {
 }
 
 void ExtraHID::LoadInputDevices() {
-    zl = Input::CreateDevice<Input::ButtonDevice>(
-        Settings::values.current_input_profile.buttons[Settings::NativeButton::ZL]);
-    zr = Input::CreateDevice<Input::ButtonDevice>(
-        Settings::values.current_input_profile.buttons[Settings::NativeButton::ZR]);
-    c_stick = Input::CreateDevice<Input::AnalogDevice>(
-        Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CStick]);
+    std::shared_ptr<CCServer> cc = Core::System::GetInstance().CitraConnectManager();
+    if (cc != nullptr && cc->isClientConnected()) {
+        Common::ParamPackage engine = Common::ParamPackage("engine:ccremote");
+        zl = Input::CreateDevice<Input::ButtonDevice>(
+            InputCommon::GetControllerButtonBinds(engine, Settings::NativeButton::ZL).Serialize());
+        zr = Input::CreateDevice<Input::ButtonDevice>(
+            InputCommon::GetControllerButtonBinds(engine, Settings::NativeButton::ZR).Serialize());
+        c_stick = Input::CreateDevice<Input::AnalogDevice>(
+            InputCommon::GetControllerAnalogBinds(engine, Settings::NativeAnalog::CStick)
+                .Serialize());
+    } else {
+        zl = Input::CreateDevice<Input::ButtonDevice>(
+            Settings::values.current_input_profile.buttons[Settings::NativeButton::ZL]);
+        zr = Input::CreateDevice<Input::ButtonDevice>(
+            Settings::values.current_input_profile.buttons[Settings::NativeButton::ZR]);
+        c_stick = Input::CreateDevice<Input::AnalogDevice>(
+            Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CStick]);
+    }
 }
 
 } // namespace Service::IR

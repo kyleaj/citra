@@ -10,6 +10,7 @@
 #include <boost/serialization/unique_ptr.hpp>
 #include "common/archives.h"
 #include "common/logging/log.h"
+#include "common/param_package.h"
 #include "core/3ds.h"
 #include "core/core.h"
 #include "core/core_timing.h"
@@ -23,6 +24,7 @@
 #include "core/hle/service/hid/hid_user.h"
 #include "core/hle/service/service.h"
 #include "core/movie.h"
+#include "input_common/main.h"
 #include "video_core/video_core.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::HID::Module)
@@ -93,13 +95,26 @@ DirectionState GetStickDirectionState(s16 circle_pad_x, s16 circle_pad_y) {
 }
 
 void Module::LoadInputDevices() {
-    std::transform(Settings::values.current_input_profile.buttons.begin() +
-                       Settings::NativeButton::BUTTON_HID_BEGIN,
-                   Settings::values.current_input_profile.buttons.begin() +
-                       Settings::NativeButton::BUTTON_HID_END,
-                   buttons.begin(), Input::CreateDevice<Input::ButtonDevice>);
-    circle_pad = Input::CreateDevice<Input::AnalogDevice>(
-        Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CirclePad]);
+    if (system.CitraConnectManager()->isClientConnected()) {
+        // Force citra connect bindings when it's connected
+        Common::ParamPackage engine = Common::ParamPackage("engine:ccremote");
+        for (int i = Settings::NativeButton::BUTTON_HID_BEGIN;
+             i < Settings::NativeButton::BUTTON_HID_END; i++) {
+            buttons[i] = Input::CreateDevice<Input::ButtonDevice>(
+                InputCommon::GetControllerButtonBinds(engine, i).Serialize());
+        }
+        circle_pad = Input::CreateDevice<Input::AnalogDevice>(
+            InputCommon::GetControllerAnalogBinds(engine, Settings::NativeAnalog::CirclePad).Serialize());
+    } else {
+        std::transform(Settings::values.current_input_profile.buttons.begin() +
+                           Settings::NativeButton::BUTTON_HID_BEGIN,
+                       Settings::values.current_input_profile.buttons.begin() +
+                           Settings::NativeButton::BUTTON_HID_END,
+                       buttons.begin(), Input::CreateDevice<Input::ButtonDevice>);
+        circle_pad = Input::CreateDevice<Input::AnalogDevice>(
+            Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CirclePad]);
+    }
+
     motion_device = Input::CreateDevice<Input::MotionDevice>(
         Settings::values.current_input_profile.motion_device);
     touch_device = Input::CreateDevice<Input::TouchDevice>(

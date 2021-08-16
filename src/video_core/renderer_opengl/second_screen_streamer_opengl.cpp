@@ -3,21 +3,27 @@
 // Refer to the license.txt file included.
 
 #include "cc-server.h"
+#include "core/core.h"
 #include "core/frontend/framebuffer_layout.h"
 #include "core/frontend/emu_window.h"
 #include "core/frontend/scope_acquire_context.h"
+#include "core/hle/service/hid/hid.h"
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #include "video_core/renderer_opengl/second_screen_streamer_opengl.h"
 
 #include <thread>
 #include <atomic>
+#include <memory>
+#include <core/hle/service/ir/ir_user.h>
+#include <core/hle/service/ir/ir_rst.h>
 
 namespace CitraConnect {
 
-    SecondScreenStream::SecondScreenStream(CCServer& cc_server, Frontend::EmuWindow& emu_window)
+    SecondScreenStream::SecondScreenStream(std::shared_ptr<CCServer> cc_server,
+                                       Frontend::EmuWindow& emu_window)
         : context(emu_window.CreateSharedContext()) {
-        server = &cc_server;
+        server = cc_server;
     }
 
     bool SecondScreenStream::IsStreaming() {
@@ -47,6 +53,24 @@ namespace CitraConnect {
         }
 
         LOG_INFO(Render_OpenGL, "Connected!");
+
+        // Force input pollers to use CitraConnect
+        auto& system = Core::System::GetInstance();
+        auto hid = Service::HID::GetModule(system);
+        if (hid) {
+            hid->ReloadInputDevices();
+            LOG_INFO(Render_OpenGL, "Requested input device reload!");
+        } else {
+            LOG_WARNING(Render_OpenGL, "Failed to reload input devices after remote connection!");
+        }
+
+        auto sm = system.ServiceManager();
+        auto ir_user = sm.GetService<Service::IR::IR_USER>("ir:USER");
+        if (ir_user)
+            ir_user->ReloadInputDevices();
+        auto ir_rst = sm.GetService<Service::IR::IR_RST>("ir:rst");
+        if (ir_rst)
+            ir_rst->ReloadInputDevices();
 
         Frontend::ScopeAcquireContext scope{*context};
         InitializeOpenGLObjects();
@@ -92,6 +116,9 @@ namespace CitraConnect {
             current_pbo = (current_pbo + 1) % 2;
             next_pbo = (current_pbo + 1) % 2;
         }
+
+        // If not still connected, reset input settings.
+
         stop_requested = false;
         CleanupOpenGLObjects();
     }

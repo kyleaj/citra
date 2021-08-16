@@ -11,6 +11,7 @@
 
 #include <thread>
 #include <atomic>
+#include <memory>
 
 namespace CitraConnect {
 
@@ -20,7 +21,7 @@ namespace CitraConnect {
 class SecondScreenStream {
 
 private:
-    CCServer* server;
+    std::shared_ptr<CCServer> server;
     std::unique_ptr<Frontend::GraphicsContext> context;
     std::atomic_bool stop_requested{false};
     std::thread present_thread;
@@ -33,7 +34,8 @@ private:
 public:
     std::unique_ptr<Frontend::TextureMailbox> mailbox;
 
-    explicit SecondScreenStream(CCServer& cc_server, Frontend::EmuWindow& emu_window);
+    explicit SecondScreenStream(std::shared_ptr<CCServer> cc_server,
+                                Frontend::EmuWindow& emu_window);
 
     ~SecondScreenStream() = default;
 
