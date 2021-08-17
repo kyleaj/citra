@@ -16,4 +16,6 @@ public:
     bool PollButton(int button);
 
     std::tuple<uint8_t, uint8_t> PollAnalog(int analog);
+
+    std::tuple<float, float, bool> PollTouch();
 };

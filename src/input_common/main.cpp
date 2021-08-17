@@ -26,6 +26,7 @@ std::shared_ptr<GCAdapter::Adapter> gcadapter;
 std::shared_ptr<CCInputAdapter> ccadapter;
 std::shared_ptr<CCButtonFactory> ccbuttons;
 std::shared_ptr<CCAnalogFactory> ccanalog;
+std::shared_ptr<CCTouchFactory> cctouch;
 static std::shared_ptr<Keyboard> keyboard;
 static std::shared_ptr<MotionEmu> motion_emu;
 static std::unique_ptr<CemuhookUDP::State> udp;
@@ -43,6 +44,8 @@ void Init() {
     Input::RegisterFactory<Input::ButtonDevice>("ccremote", ccbuttons);
     ccanalog = std::make_shared<CCAnalogFactory>(ccadapter);
     Input::RegisterFactory<Input::AnalogDevice>("ccremote", ccanalog);
+    cctouch = std::make_shared<CCTouchFactory>(ccadapter);
+    Input::RegisterFactory<Input::TouchDevice>("ccremote", cctouch);
 
     keyboard = std::make_shared<Keyboard>();
     Input::RegisterFactory<Input::ButtonDevice>("keyboard", keyboard);

@@ -67,7 +67,7 @@ public:
         std::tie(ux, uy) = cc->PollAnalog(stick);
 
         float x = coorToFloat(ux);
-        float y = coorToFloat(uy);
+        float y = coorToFloat(uy)*-1;
 
         float r = (x * x) + (y * y);
         if (r > 1.0f) {
@@ -84,7 +84,7 @@ private:
     int stick;
 
     float coorToFloat(uint8_t& c) const {
-        return ((c / 127.0f) - 1)/2;
+        return (c / 127.0f) - 1;
     }
 };
 
@@ -101,6 +101,30 @@ Common::ParamPackage CCAnalogFactory::GetAnalogMapping(Settings::NativeAnalog::V
     Common::ParamPackage params({{"engine", "ccremote"}});
     params.Set("analog", static_cast<int>(stick));
     return params;
+}
+
+class CCTouchDevice final : public Input::TouchDevice {
+public:
+    explicit CCTouchDevice(std::shared_ptr<CCInputAdapter> cc_server) {
+        cc = cc_server;
+    }
+
+    ~CCTouchDevice() override = default;
+
+    std::tuple<float, float, bool> GetStatus() const override {
+        return cc->PollTouch();
+    }
+
+private:
+    std::shared_ptr<CCInputAdapter> cc;
+};
+
+CCTouchFactory::CCTouchFactory(std::shared_ptr<CCInputAdapter> inputAdapter) {
+    adapter = inputAdapter;
+}
+
+std::unique_ptr<Input::TouchDevice> CCTouchFactory::Create(const Common::ParamPackage& params) {
+    return std::make_unique<CCTouchDevice>(adapter);
 }
 
 } // namespace InputCommon

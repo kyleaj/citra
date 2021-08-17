@@ -40,4 +40,18 @@ public:
     Common::ParamPackage GetAnalogMapping(Settings::NativeAnalog::Values button);
 };
 
+/**
+ * A touch device factory representing a remote gamepad connected with Citra Connect.
+ */
+class CCTouchFactory final : public Input::Factory<Input::TouchDevice> {
+private:
+    std::shared_ptr<CCInputAdapter> adapter;
+
+public:
+    explicit CCTouchFactory(std::shared_ptr<CCInputAdapter> inputAdapter);
+
+    std::unique_ptr<Input::TouchDevice> Create(const Common::ParamPackage& params) override;
+};
+
+
 } // namespace InputCommon

@@ -97,3 +97,24 @@ std::tuple<uint8_t, uint8_t> CCInputAdapter::PollAnalog(int analog) {
     UNREACHABLE();
     return {CENTER, CENTER};
 }
+
+std::tuple<float, float, bool> CCInputAdapter::PollTouch() {
+    if (!Preamble()) {
+        return {false, 0.0f, 0.0f};
+    }
+
+    // TODO: Calculate cutoffs based on requested resolution
+    double border = (255*(1-(640.0F / 854.0F)))/2.0;
+
+    bool touching = currState.touch_down;
+    float touchY = currState.touch_y/255.0;
+    double touchX = currState.touch_x;
+    if (touchX < border || touchX > (255.0 - border)) {
+        touching = false;
+        touchX = 0;
+    } else {
+        touchX = (touchX - border) / (255.0 - (2*border));
+    }
+
+    return {(float)touchX, touchY, touching};
+}

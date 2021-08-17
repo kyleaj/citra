@@ -105,6 +105,8 @@ void Module::LoadInputDevices() {
         }
         circle_pad = Input::CreateDevice<Input::AnalogDevice>(
             InputCommon::GetControllerAnalogBinds(engine, Settings::NativeAnalog::CirclePad).Serialize());
+        touch_device = Input::CreateDevice<Input::TouchDevice>(engine.Serialize());
+        touch_btn_device.reset();
     } else {
         std::transform(Settings::values.current_input_profile.buttons.begin() +
                            Settings::NativeButton::BUTTON_HID_BEGIN,
@@ -113,17 +115,17 @@ void Module::LoadInputDevices() {
                        buttons.begin(), Input::CreateDevice<Input::ButtonDevice>);
         circle_pad = Input::CreateDevice<Input::AnalogDevice>(
             Settings::values.current_input_profile.analogs[Settings::NativeAnalog::CirclePad]);
+        touch_device = Input::CreateDevice<Input::TouchDevice>(
+            Settings::values.current_input_profile.touch_device);
+        if (Settings::values.current_input_profile.use_touch_from_button) {
+            touch_btn_device = Input::CreateDevice<Input::TouchDevice>("engine:touch_from_button");
+        } else {
+            touch_btn_device.reset();
+        }
     }
 
     motion_device = Input::CreateDevice<Input::MotionDevice>(
         Settings::values.current_input_profile.motion_device);
-    touch_device = Input::CreateDevice<Input::TouchDevice>(
-        Settings::values.current_input_profile.touch_device);
-    if (Settings::values.current_input_profile.use_touch_from_button) {
-        touch_btn_device = Input::CreateDevice<Input::TouchDevice>("engine:touch_from_button");
-    } else {
-        touch_btn_device.reset();
-    }
 }
 
 void Module::UpdatePadCallback(u64 userdata, s64 cycles_late) {
